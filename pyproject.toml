@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "flit_core >=3.2,<4"]
 build-backend = "hatchling.build"
 
 [project]
@@ -7,7 +7,7 @@ name = "fastapi_swagger2"
 description = "Swagger2 support for FastAPI framework"
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
+license = { file="LICENSE" }
 authors = [
     { name = "Viraj Kanwade", email = "virajk.oib@gmail.com" },
 ]
@@ -50,14 +50,14 @@ Documentation = "https://github.com/virajkanwade/fastapi_swagger2"
 test = [
     "pytest >=7.1.3,<8.0.0",
     "coverage[toml] >= 6.5.0,< 8.0",
-    "mypy ==0.982",
-    "ruff ==0.0.138",
-    "black == 23.1.0",
+    "mypy ==1.3.0",
+    "ruff ==0.0.272",
+    "black == 23.3.0",
     "isort >=5.0.6,<6.0.0",
     "httpx >=0.23.0,<0.24.0",
 ]
 dev = [
-    "ruff ==0.0.138",
+    "ruff ==0.0.272",
 ]
 all = [
     "httpx >=0.23.0",

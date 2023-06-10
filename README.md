@@ -64,3 +64,9 @@ This adds following endpoints:
 * http://localhost:8000/swagger2.json
 * http://localhost:8000/swagger2/docs
 * http://localhost:8000/swagger2/redoc
+
+## Development
+
+```console
+$ pip install "/path/to/fastapi_swagger2/repo[test,all]"
+```
