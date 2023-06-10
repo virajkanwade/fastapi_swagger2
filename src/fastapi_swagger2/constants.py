@@ -1,0 +1,1 @@
+REF_PREFIX = "#/definitions/"
