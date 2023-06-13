@@ -2,4 +2,4 @@
 
 set -e
 
-flit publish
+hatch publish

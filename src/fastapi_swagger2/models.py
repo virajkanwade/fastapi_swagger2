@@ -170,14 +170,15 @@ class ParameterInType(Enum):
     query = "query"
     header = "header"
     path = "path"
-    cookie = "cookie"
+    formData = "formData"
+    body = "body"
 
 
 class ParameterBase(BaseModel):
     name: str
+    in_: ParameterInType = Field(alias="in")
     description: Optional[str] = None
     required: Optional[bool] = None
-    in_: ParameterInType = Field(alias="in")
 
     class Config:
         extra = "allow"
@@ -333,9 +334,11 @@ class Swagger2(BaseModel):
     consumes: Optional[List[str]] = None
     produces: Optional[List[str]] = None
     paths: Dict[str, Union[PathItem, Any]]
-    definitions: Any  # XXX
-    parameters: Any  # XXX
-    responses: Any  # XXX
+    definitions: Optional[Dict[str, Union[Schema, Reference]]] = None
+    parameters: Optional[
+        Dict[str, Union[ParameterBody, ParameterNotBody, Reference]]
+    ] = None
+    responses: Optional[Dict[str, Union[Response, Reference]]] = None
     securityDefinitions: Optional[Dict[str, Union[SecurityScheme, Reference]]]
     security: Optional[List[Dict[str, List[str]]]] = None
     tags: Optional[List[Tag]] = None
