@@ -244,6 +244,77 @@ class PathItem(BaseModel):
         extra = "allow"
 
 
+class SecuritySchemeType(Enum):
+    apiKey = "apiKey"
+    basic = "basic"
+    oauth2 = "oauth2"
+
+
+class SecurityBase(BaseModel):
+    type_: SecuritySchemeType = Field(alias="type")
+    description: Optional[str] = None
+
+    class Config:
+        extra = "allow"
+
+
+class BasicAuth(SecurityBase):
+    pass
+
+
+class APIKeyIn(Enum):
+    query = "query"
+    header = "header"
+
+
+class APIKey(SecurityBase):
+    type_: SecuritySchemeType = Field(default=SecuritySchemeType.apiKey, alias="type")
+    in_: APIKeyIn = Field(alias="in")
+    name: str
+
+
+class OAuth2FlowIn(Enum):
+    implicit = "implicit"
+    password = "password"
+    application = "application"
+    accessCode = "accessCode"
+
+
+class OAuth2FlowBase(SecurityBase):
+    flow: OAuth2FlowIn
+    scopes: Dict[str, str] = {}
+
+    class Config:
+        extra = "allow"
+
+
+class OAuth2Implicit(OAuth2FlowBase):
+    authorizationUrl: str
+
+
+class OAuth2Password(OAuth2FlowBase):
+    tokenUrl: str
+
+
+class OAuth2Application(OAuth2FlowBase):
+    tokenUrl: str
+
+
+class OAuth2AccessCode(OAuth2FlowBase):
+    authorizationUrl: str
+    tokenUrl: str
+
+
+SecurityScheme = Union[
+    BasicAuth,
+    APIKey,
+    OAuth2Implicit,
+    OAuth2Password,
+    OAuth2Application,
+    OAuth2AccessCode,
+]
+
+
 class Tag(BaseModel):
     name: str
     description: Optional[str] = None
@@ -262,10 +333,10 @@ class Swagger2(BaseModel):
     consumes: Optional[List[str]] = None
     produces: Optional[List[str]] = None
     paths: Dict[str, Union[PathItem, Any]]
-    definitions: Any
-    parameters: Any
-    responses: Any
-    securityDefinitions: Any
+    definitions: Any  # XXX
+    parameters: Any  # XXX
+    responses: Any  # XXX
+    securityDefinitions: Optional[Dict[str, Union[SecurityScheme, Reference]]]
     security: Optional[List[Dict[str, List[str]]]] = None
     tags: Optional[List[Tag]] = None
     externalDocs: Optional[ExternalDocumentation] = None
