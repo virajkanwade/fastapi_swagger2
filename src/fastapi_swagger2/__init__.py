@@ -1,4 +1,4 @@
-__version__ = "0.0.1b4"
+__version__ = "0.0.1b5"
 
 from typing import Any, Dict, List, Optional, TypeVar
 
@@ -134,6 +134,7 @@ class FastAPISwagger2:
                 version=self.app.version,
                 swagger2_version=self.app.swagger2_version,
                 description=self.app.description,
+                server=str(self.app.servers[0]) if self.app.servers else None,
                 terms_of_service=self.app.terms_of_service,
                 contact=self.app.contact,
                 license_info=self.app.license_info,

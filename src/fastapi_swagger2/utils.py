@@ -2,6 +2,7 @@ import http.client
 import inspect
 from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union, cast
+from urllib.parse import ParseResult, urlparse
 
 from fastapi import routing
 from fastapi.datastructures import DefaultPlaceholder
@@ -364,10 +365,8 @@ def get_swagger2_path(
 
             http422 = str(HTTP_422_UNPROCESSABLE_ENTITY)
             if (all_route_params or route.body_field) and not any(
-                [
-                    status in operation["responses"]
-                    for status in [http422, "4XX", "default"]
-                ]
+                status in operation["responses"]
+                for status in [http422, "4XX", "default"]
             ):
                 operation["responses"][http422] = {
                     "description": "Validation Error",
@@ -395,6 +394,7 @@ def get_swagger2(
     description: Optional[str] = None,
     routes: Sequence[BaseRoute],
     tags: Optional[List[Dict[str, Any]]] = None,
+    server: Optional[str] = None,
     terms_of_service: Optional[str] = None,
     contact: Optional[Dict[str, Union[str, Any]]] = None,
     license_info: Optional[Dict[str, Union[str, Any]]] = None,
@@ -410,6 +410,12 @@ def get_swagger2(
         info["license"] = license_info
 
     output: Dict[str, Any] = {"swagger": swagger2_version, "info": info}
+
+    if server:
+        pr: ParseResult = urlparse(server)
+        output["host"] = pr.netloc
+        output["basePath"] = pr.path or "/"
+        output.setdefault("schemes", []).append(pr.scheme)
 
     paths: Dict[str, Dict[str, Any]] = {}
     operation_ids: Set[str] = set()
