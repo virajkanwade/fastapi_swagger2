@@ -19,11 +19,6 @@ Few API GW services like Google Cloud API GW still support only Swagger 2.0 spec
 
 ---
 
-<b>* NOTE: THIS IS STILL WORK IN PROGRESS. CURRENTLY SUPPORTS BASIC SPEC LIKE PATHS, PARAMS, ETC.</b>
-<b>ANY HELP IS HIGHLY APPRECIATED.</b>
-
----
-
 ## Requirements
 
 Python 3.8+
