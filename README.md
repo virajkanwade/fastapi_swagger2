@@ -62,6 +62,25 @@ This adds following endpoints:
 * http://localhost:8000/swagger2/docs
 * http://localhost:8000/swagger2/redoc
 
+## Generate spec for CI/CD
+
+```Python
+import os
+
+import yaml
+
+from app.main import app
+
+URL = os.environ["CLOUD_RUN_URL"]
+
+app.servers.append(URL)
+
+spec = app.swagger2()
+spec['x-google-backend'] = {'address': URL}
+
+print(yaml.dump(spec))
+```
+
 ## Development
 
 ```console
