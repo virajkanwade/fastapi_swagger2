@@ -173,9 +173,7 @@ def get_swagger2_operation_parameters(
             parameter.update({k: v for (k, v) in schema.items() if k != "title"})
         if field_info.description:
             parameter["description"] = field_info.description
-        if field_info.examples:
-            parameter["examples"] = jsonable_encoder(field_info.examples)
-        elif field_info.example != Undefined:
+        if field_info.example != Undefined:
             parameter["example"] = jsonable_encoder(field_info.example)
         if field_info.deprecated:
             parameter["deprecated"] = field_info.deprecated
@@ -204,9 +202,7 @@ def get_swagger2_operation_request_body(
         request_body_oai["required"] = required
 
     request_media_content: Dict[str, Any] = {"schema": body_schema}
-    if field_info.examples:
-        request_media_content["examples"] = jsonable_encoder(field_info.examples)
-    elif field_info.example != Undefined:
+    if field_info.example != Undefined:
         request_media_content["example"] = jsonable_encoder(field_info.example)
     # request_body_oai["content"] = {request_media_type: request_media_content}
     request_body_oai.update(request_media_content)
