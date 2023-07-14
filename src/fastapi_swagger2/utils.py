@@ -332,16 +332,25 @@ def get_swagger2_path(
                     additional_response,
                 ) in route.responses.items():
                     process_response = additional_response.copy()
+                    assert isinstance(
+                        process_response, dict
+                    ), "An additional response must be a dict"
                     process_response.pop("model", None)
+
+                    if "headers" in process_response:
+                        headers = process_response["headers"].copy()
+                        for header, info in headers.items():
+                            schema = info.pop("schema", None)
+                            if schema:
+                                info.update(schema)
+                        process_response["headers"] = headers
+
                     status_code_key = str(additional_status_code).upper()
                     if status_code_key == "DEFAULT":
                         status_code_key = "default"
                     openapi_response = operation_responses.setdefault(
                         status_code_key, {}
                     )
-                    assert isinstance(
-                        process_response, dict
-                    ), "An additional response must be a dict"
                     field = route.response_fields.get(additional_status_code)
                     additional_field_schema: Optional[Dict[str, Any]] = None
                     if field:
