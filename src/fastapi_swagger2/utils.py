@@ -235,6 +235,7 @@ def get_swagger2_path(
             )
 
             parameters: List[Dict[str, Any]] = []
+            all_parameters = {}
             flat_dependant = get_flat_dependant(route.dependant, skip_repeats=True)
             (
                 security_definitions,
@@ -265,14 +266,14 @@ def get_swagger2_path(
                 # over non-required definitions
                 all_parameters.update(required_parameters)
 
-                if method in METHODS_WITH_BODY:
-                    request_body_oai = get_swagger2_operation_request_body(
-                        body_field=route.body_field, model_name_map=model_name_map
-                    )
-                    if request_body_oai:
-                        all_parameters.update({("body", "body"): request_body_oai})
+            if method in METHODS_WITH_BODY:
+                request_body_oai = get_swagger2_operation_request_body(
+                    body_field=route.body_field, model_name_map=model_name_map
+                )
+                if request_body_oai:
+                    all_parameters.update({("body", "body"): request_body_oai})
 
-                operation["parameters"] = list(all_parameters.values())
+            operation["parameters"] = list(all_parameters.values())
 
             if route.callbacks:
                 callbacks = {}
