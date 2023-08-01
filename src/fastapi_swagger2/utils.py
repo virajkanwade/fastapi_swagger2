@@ -248,6 +248,7 @@ def get_swagger2_path(
                 all_route_params=all_route_params, model_name_map=model_name_map
             )
             parameters.extend(operation_parameters)
+            all_parameters = {}
             if parameters:
                 all_parameters = {
                     (param["in"], param["name"]): param for param in parameters
@@ -260,14 +261,13 @@ def get_swagger2_path(
                 # Make sure required definitions of the same parameter take precedence
                 # over non-required definitions
                 all_parameters.update(required_parameters)
-
-                if method in METHODS_WITH_BODY:
-                    request_body_oai = get_swagger2_operation_request_body(
-                        body_field=route.body_field, model_name_map=model_name_map
-                    )
-                    if request_body_oai:
-                        all_parameters.update({("body", "body"): request_body_oai})
-
+            if method in METHODS_WITH_BODY:
+                request_body_oai = get_swagger2_operation_request_body(
+                    body_field=route.body_field, model_name_map=model_name_map
+                )
+                if request_body_oai:
+                    all_parameters.update({("body", "body"): request_body_oai})
+            if all_parameters:
                 operation["parameters"] = list(all_parameters.values())
 
             if route.callbacks:
