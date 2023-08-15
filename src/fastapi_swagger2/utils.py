@@ -340,7 +340,7 @@ def get_swagger2_path(
 
                     if "headers" in process_response:
                         headers = process_response["headers"].copy()
-                        for header, info in headers.items():
+                        for _, info in headers.items():
                             schema = info.pop("schema", None)
                             if schema:
                                 info.update(schema)
