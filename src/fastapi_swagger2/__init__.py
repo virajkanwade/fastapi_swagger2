@@ -17,6 +17,7 @@ from fastapi_swagger2.utils import get_swagger2
 # Keep mypy happy with the monkey patching
 class FastAPIEx(FastAPI):
     swagger2_url: Optional[str]
+    swagger2_tags: Optional[List[Dict[str, Any]]]
     swagger2_docs_url: Optional[str]
     swagger2_redoc_url: Optional[str]
     swagger2_ui_oauth2_redirect_url: Optional[str]
@@ -36,7 +37,7 @@ class FastAPISwagger2:
         self,
         app: AppType,
         swagger2_url: Optional[str] = "/swagger2.json",
-        tags: Optional[List[Dict[str, Any]]] = None,
+        swagger2_tags: Optional[List[Dict[str, Any]]] = None,
         swagger2_docs_url: Optional[str] = "/swagger2/docs",
         swagger2_redoc_url: Optional[str] = "/swagger2/redoc",
         swagger2_ui_oauth2_redirect_url: Optional[
@@ -47,6 +48,7 @@ class FastAPISwagger2:
     ) -> None:
         self.app = app
         self.app.swagger2_url = swagger2_url
+        self.app.swagger2_tags = swagger2_tags
         self.app.swagger2_docs_url = swagger2_docs_url
         self.app.swagger2_redoc_url = swagger2_redoc_url
         self.app.swagger2_ui_oauth2_redirect_url = swagger2_ui_oauth2_redirect_url
@@ -137,7 +139,7 @@ class FastAPISwagger2:
                 contact=self.app.contact,
                 license_info=self.app.license_info,
                 routes=self.app.routes,
-                tags=self.app.openapi_tags,
+                tags=self.app.swagger2_tags,
             )
 
         return self.app.swagger2_schema
