@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
+from fastapi._compat import _model_rebuild
 from fastapi.logger import logger
 from pydantic import AnyUrl, BaseModel, Field
 
@@ -348,6 +349,6 @@ class Swagger2(BaseModel):
         extra = "allow"
 
 
-Schema.update_forward_refs()
-Operation.update_forward_refs()
-# Encoding.update_forward_refs()
+_model_rebuild(Schema)
+_model_rebuild(Operation)
+# _model_rebuild(Encoding)
