@@ -31,16 +31,14 @@ class Contact(BaseModel):
     url: Optional[AnyUrl] = None
     email: Optional[EmailStr] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class License(BaseModel):
     name: str
     url: Optional[AnyUrl] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class Info(BaseModel):
@@ -51,8 +49,7 @@ class Info(BaseModel):
     license: Optional[License] = None
     version: str
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 # class URLHost(Field)
@@ -79,8 +76,7 @@ class ExternalDocumentation(BaseModel):
     description: Optional[str] = None
     url: AnyUrl
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class Reference(BaseModel):
@@ -94,8 +90,7 @@ class XML(BaseModel):
     attribute: Optional[bool] = None
     wrapped: Optional[bool] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class Schema(BaseModel):
@@ -181,8 +176,7 @@ class ParameterBase(BaseModel):
     description: Optional[str] = None
     required: Optional[bool] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class ParameterBody(ParameterBase):
@@ -194,8 +188,7 @@ class ParameterBody(ParameterBase):
 class ParameterNotBody(ParameterBase, ParameterSchema):
     pass
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class Header(_Schema2):
@@ -208,8 +201,7 @@ class Response(BaseModel):
     headers: Optional[Dict[str, Union[Header, Reference]]] = None
     examples: Optional[Any] = None  # XXX
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class Operation(BaseModel):
@@ -227,8 +219,7 @@ class Operation(BaseModel):
     deprecated: Optional[bool] = None
     security: Optional[List[Dict[str, List[str]]]] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class PathItem(BaseModel):
@@ -242,8 +233,7 @@ class PathItem(BaseModel):
     patch: Optional[Operation] = None
     parameters: Optional[List[Union[ParameterBody, ParameterNotBody]]] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class SecuritySchemeType(Enum):
@@ -256,8 +246,7 @@ class SecurityBase(BaseModel):
     type_: SecuritySchemeType = Field(alias="type")
     description: Optional[str] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class BasicAuth(SecurityBase):
@@ -286,8 +275,7 @@ class OAuth2FlowBase(SecurityBase):
     flow: OAuth2FlowIn
     scopes: Dict[str, str] = {}
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class OAuth2Implicit(OAuth2FlowBase):
@@ -322,8 +310,7 @@ class Tag(BaseModel):
     description: Optional[str] = None
     externalDocs: Optional[ExternalDocumentation] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 class Swagger2(BaseModel):
@@ -345,8 +332,7 @@ class Swagger2(BaseModel):
     tags: Optional[List[Tag]] = None
     externalDocs: Optional[ExternalDocumentation] = None
 
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 _model_rebuild(Schema)
