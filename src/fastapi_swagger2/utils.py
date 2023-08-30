@@ -7,8 +7,12 @@ from fastapi import routing
 from fastapi._compat import (
     GenerateJsonSchema,
     JsonSchemaValue,
+    ModelField,
+    Undefined,
     get_compat_model_name_map,
     get_definitions,
+    get_schema_from_model_field,
+    lenient_issubclass,
 )
 from fastapi.datastructures import DefaultPlaceholder
 from fastapi.dependencies.models import Dependant
@@ -25,9 +29,6 @@ from fastapi.params import Body, Param
 from fastapi.responses import Response
 from fastapi.types import ModelNameMap
 from fastapi.utils import deep_dict_update, is_body_allowed_for_status_code
-from pydantic.fields import ModelField, Undefined
-from pydantic.schema import field_schema
-from pydantic.utils import lenient_issubclass
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
@@ -64,19 +65,24 @@ validation_error_response_definition = {
 }
 
 
-def get_schema_from_model_field(
-    *,
-    field: ModelField,
-    schema_generator: GenerateJsonSchema,
-    model_name_map: ModelNameMap,
-    field_mapping: Dict[
-        Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue
-    ],
-) -> Dict[str, Any]:
-    # This expects that GenerateJsonSchema was already used to generate the definitions
-    return field_schema(  # type: ignore[no-any-return]
-        field, model_name_map=model_name_map, ref_prefix=REF_PREFIX
-    )[0]
+#def get_schema_from_model_field(
+#        *,
+#        field: ModelField,
+#        schema_generator: GenerateJsonSchema,
+#        model_name_map: ModelNameMap,
+#        field_mapping: Dict[
+#            Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue
+#        ],
+#    ) -> Dict[str, Any]:
+#        # This expects that GenerateJsonSchema was already used to generate the definitions
+#        json_schema = field_mapping[(field, field.mode)]
+#        if "$ref" not in json_schema:
+#            # TODO remove when deprecating Pydantic v1
+#            # Ref: https://github.com/pydantic/pydantic/blob/d61792cc42c80b13b23e3ffa74bc37ec7c77f7d1/pydantic/schema.py#L207
+#            json_schema[
+#                "title"
+#            ] = field.field_info.title or field.alias.title().replace("_", " ")
+#        return json_schema
 
 
 def get_swagger2_security_definitions(
