@@ -65,7 +65,7 @@ validation_error_response_definition = {
 }
 
 
-#def get_schema_from_model_field(
+# def get_schema_from_model_field(
 #        *,
 #        field: ModelField,
 #        schema_generator: GenerateJsonSchema,
@@ -504,7 +504,25 @@ def get_swagger2(
     output["paths"] = paths
 
     if definitions:
-        output["definitions"] = {k: definitions[k] for k in sorted(definitions)}
+        # output["definitions"] = {k: definitions[k] for k in sorted(definitions)}
+        output["definitions"] = {}
+        for k in sorted(definitions):
+            properties = definitions[k]["properties"]
+            for p in properties:
+                if "anyOf" in properties[p].keys():
+                    any_of = properties[p].pop("anyOf")
+                    if len(any_of) <= 2:
+                        for _any_of in any_of:
+                            if _any_of == {"type": "null"}:
+                                properties[p]["x-nullable"] = True
+                            else:
+                                properties[p].update(_any_of)
+                    else:
+                        logger.warning(
+                            f"fastapi_swagger2: Unable to handle anyOf in definitions {any_of}"
+                        )
+
+            output["definitions"][k] = definitions[k]
 
     if tags:
         output["tags"] = tags
