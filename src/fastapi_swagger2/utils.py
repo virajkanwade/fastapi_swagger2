@@ -507,7 +507,7 @@ def get_swagger2(
         # output["definitions"] = {k: definitions[k] for k in sorted(definitions)}
         output["definitions"] = {}
         for k in sorted(definitions):
-            properties = definitions[k]["properties"]
+            properties = definitions[k].get("properties", [])
             for p in properties:
                 if "anyOf" in properties[p].keys():
                     any_of = properties[p].pop("anyOf")
@@ -518,8 +518,9 @@ def get_swagger2(
                             else:
                                 properties[p].update(_any_of)
                     else:
+                        properties[p].update({"type": "string"})
                         logger.warning(
-                            f"fastapi_swagger2: Unable to handle anyOf in definitions {any_of}"
+                            f"fastapi_swagger2: Unable to handle anyOf in definitions {any_of}, defaulting to string type."
                         )
 
             output["definitions"][k] = definitions[k]
