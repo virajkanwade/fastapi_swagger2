@@ -327,7 +327,7 @@ class Swagger2(BaseModel):
         Dict[str, Union[ParameterBody, ParameterNotBody, Reference]]
     ] = None
     responses: Optional[Dict[str, Union[Response, Reference]]] = None
-    securityDefinitions: Optional[Dict[str, Union[SecurityScheme, Reference]]]
+    securityDefinitions: Optional[Dict[str, Union[SecurityScheme, Reference]]] = None
     security: Optional[List[Dict[str, List[str]]]] = None
     tags: Optional[List[Tag]] = None
     externalDocs: Optional[ExternalDocumentation] = None
