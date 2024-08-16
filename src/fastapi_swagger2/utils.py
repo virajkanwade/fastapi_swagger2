@@ -110,6 +110,7 @@ def get_swagger2_security_definitions(
     security_definitions = {}
     operation_security = []
     for security_requirement in flat_dependant.security_requirements:
+        skip: bool = False
         # fastapi.security.* which gets model from fastapi.openapi.models
         security_definition = jsonable_encoder(
             security_requirement.security_scheme.model,
@@ -120,6 +121,7 @@ def get_swagger2_security_definitions(
             if security_definition.get("scheme", "basic") == "basic":
                 security_definition = {"type": "basic"}
             else:
+                skip = True
                 logger.warning(
                     f"fastapi_swagger2: Unable to handle security_definition: {security_definition}"
                 )
@@ -148,12 +150,14 @@ def get_swagger2_security_definitions(
                         {_security_name: security_requirement.scopes}
                     )
         else:
+            skip = True
             logger.warning(
                 f"fastapi_swagger2: Unable to handle security_definition: {security_definition}"
             )
-        security_name = security_requirement.security_scheme.scheme_name
-        security_definitions[security_name] = security_definition
-        operation_security.append({security_name: security_requirement.scopes})
+        if not skip:
+            security_name = security_requirement.security_scheme.scheme_name
+            security_definitions[security_name] = security_definition
+            operation_security.append({security_name: security_requirement.scopes})
     return security_definitions, operation_security
 
 
