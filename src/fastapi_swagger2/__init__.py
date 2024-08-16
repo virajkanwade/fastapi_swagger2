@@ -139,7 +139,7 @@ class FastAPISwagger2:
                 contact=self.app.contact,
                 license_info=self.app.license_info,
                 routes=self.app.routes,
-                tags=self.app.swagger2_tags,
+                tags=self.app.openapi_tags,
             )
 
         return self.app.swagger2_schema
