@@ -64,15 +64,17 @@ validation_error_response_definition = {
     },
 }
 
+FieldMapping = Dict[
+    Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue
+]
+
 
 # def get_schema_from_model_field(
 #        *,
 #        field: ModelField,
 #        schema_generator: GenerateJsonSchema,
 #        model_name_map: ModelNameMap,
-#        field_mapping: Dict[
-#            Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue
-#        ],
+#        field_mapping: FieldMapping,
 #    ) -> Dict[str, Any]:
 #        # This expects that GenerateJsonSchema was already used to generate the definitions
 #        json_schema = field_mapping[(field, field.mode)]
@@ -128,7 +130,6 @@ def get_swagger2_security_definitions(
         elif security_definition["type"] == "apiKey":
             pass
         elif security_definition["type"] == "oauth2":
-            _security_definition = security_definition
             flows = security_definition["flows"]
             flows_keys = list(flows.keys())
             if len(flows_keys) >= 1:
@@ -166,9 +167,7 @@ def get_swagger2_operation_parameters(
     all_route_params: Sequence[ModelField],
     schema_generator: GenerateJsonSchema,
     model_name_map: ModelNameMap,
-    field_mapping: Dict[
-        Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue
-    ],
+    field_mapping: FieldMapping,
 ) -> List[Dict[str, Any]]:
     parameters = []
     for param in all_route_params:
@@ -207,9 +206,7 @@ def get_swagger2_operation_request_body(
     body_field: Optional[ModelField],
     schema_generator: GenerateJsonSchema,
     model_name_map: ModelNameMap,
-    field_mapping: Dict[
-        Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue
-    ],
+    field_mapping: FieldMapping,
 ) -> Optional[Dict[str, Any]]:
     if not body_field:
         return None
@@ -243,9 +240,7 @@ def get_swagger2_path(
     operation_ids: Set[str],
     schema_generator: GenerateJsonSchema,
     model_name_map: ModelNameMap,
-    field_mapping: Dict[
-        Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue
-    ],
+    field_mapping: FieldMapping,
 ) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
     path: Dict[str, Any] = {}
     security_schemes: Dict[str, Any] = {}
