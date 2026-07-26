@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "fastapi_swagger2"
-version = "0.4.1"
+version = "0.4.2"
 description = "Swagger2 support for FastAPI framework"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -39,7 +39,7 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP",
 ]
 dependencies = [
-    "fastapi>=0.137.2",
+    "fastapi>=0.140.0",
 ]
 
 [project.urls]

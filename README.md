@@ -23,7 +23,8 @@ Few API GW services like Google Cloud API GW still support only Swagger 2.0 spec
 
 Python 3.10+
 
-* 0.4.1 - FastAPI >= 0.137.2
+* 0.4.2 - FastAPI >= 0.140.0
+* 0.4.1 - FastAPI >= 0.137.2, < 0.140.0
 * 0.4.0 - FastAPI >= 0.137.0, <= 0.137.1
 * 0.3.5 - FastAPI >= 0.129.0, < 0.137.0
 * 0.3.4 - FastAPI >= 0.129.0             (last tested against 0.133.1)

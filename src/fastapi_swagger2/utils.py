@@ -13,7 +13,12 @@ from fastapi._compat import (
     lenient_issubclass,
 )
 from fastapi.datastructures import DefaultPlaceholder
-from fastapi.dependencies.models import Dependant
+from fastapi.dependencies.models import (
+    Dependant,
+    _get_oauth_scopes,
+    _get_security_dependencies,
+    _get_security_scheme,
+)
 from fastapi.dependencies.utils import (
     get_flat_dependant,
     get_flat_params,
@@ -213,9 +218,10 @@ def get_swagger2_security_definitions(
     security_definitions = {}
     # Use a dict to merge scopes for same security scheme
     operation_security_dict: dict[str, list[str]] = {}
-    for security_dependency in flat_dependant._security_dependencies:
+    for security_dependency in _get_security_dependencies(dependant=flat_dependant):
+        security_scheme = _get_security_scheme(dependant=security_dependency)
         security_definition = jsonable_encoder(
-            security_dependency._security_scheme.model,
+            security_scheme.model,
             by_alias=True,
             exclude_none=True,
         )
@@ -237,7 +243,7 @@ def get_swagger2_security_definitions(
             if not flows:
                 continue
 
-            security_name = security_dependency._security_scheme.scheme_name
+            security_name = security_scheme.scheme_name
 
             for flow_key, flow_data in flows.items():
                 swagger2_flow_key = oauth2_flows_keys_map.get(flow_key)
@@ -249,19 +255,19 @@ def get_swagger2_security_definitions(
 
                 suffixed_name = f"{security_name}_{swagger2_flow_key}"
                 security_definitions[suffixed_name] = mapped_security
-                for scope in security_dependency.oauth_scopes or []:
+                for scope in _get_oauth_scopes(dependant=security_dependency):
                     if scope not in operation_security_dict.setdefault(suffixed_name, []):
                         operation_security_dict[suffixed_name].append(scope)
 
             continue
         # swagger2 logic - end
 
-        security_name = security_dependency._security_scheme.scheme_name
+        security_name = security_scheme.scheme_name
         security_definitions[security_name] = security_definition
         # Merge scopes for the same security scheme
         if security_name not in operation_security_dict:
             operation_security_dict[security_name] = []
-        for scope in security_dependency.oauth_scopes or []:
+        for scope in _get_oauth_scopes(dependant=security_dependency):
             if scope not in operation_security_dict[security_name]:
                 operation_security_dict[security_name].append(scope)
     operation_security = [{name: scopes} for name, scopes in operation_security_dict.items()]
