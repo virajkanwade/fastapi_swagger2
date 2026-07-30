@@ -28,6 +28,7 @@ from fastapi.logger import logger
 from fastapi.openapi.constants import METHODS_WITH_BODY
 from fastapi.openapi.utils import (
     _get_api_route_for_openapi,
+    _get_flat_fields_from_params,
     _get_openapi_operation_parameters,
     get_fields_from_routes,
     get_openapi_operation_metadata,
@@ -296,12 +297,22 @@ def get_swagger2_path(
     route_response_media_type: str | None = current_response_class.media_type
 
     if route.include_in_schema:
+        flat_dependant = get_flat_dependant(route.dependant, skip_repeats=True)
+        all_route_params = [
+            field
+            for fields in (
+                flat_dependant.path_params,
+                flat_dependant.query_params,
+                flat_dependant.header_params,
+                flat_dependant.cookie_params,
+            )
+            for field in _get_flat_fields_from_params(fields)
+        ]
         for method in route.methods:
             operation = get_openapi_operation_metadata(route=route, method=method, operation_ids=operation_ids)
 
             parameters: list[dict[str, Any]] = []
             all_parameters = {}
-            flat_dependant = get_flat_dependant(route.dependant, skip_repeats=True)
 
             security_definitions, operation_security = get_swagger2_security_definitions(flat_dependant=flat_dependant)
 
@@ -312,7 +323,7 @@ def get_swagger2_path(
                 security_schemes.update(security_definitions)
 
             operation_parameters = _get_openapi_operation_parameters(
-                dependant=route.dependant,
+                flat_dependant=flat_dependant,
                 model_name_map=model_name_map,
                 field_mapping=field_mapping,
                 separate_input_output_schemas=separate_input_output_schemas,
