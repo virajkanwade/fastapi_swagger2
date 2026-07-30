@@ -15,12 +15,9 @@ from fastapi._compat import (
 from fastapi.datastructures import DefaultPlaceholder
 from fastapi.dependencies.models import (
     Dependant,
-    _get_oauth_scopes,
-    _get_security_dependencies,
     _get_security_scheme,
 )
 from fastapi.dependencies.utils import (
-    get_flat_dependant,
     get_flat_params,
 )
 from fastapi.encoders import jsonable_encoder
@@ -28,8 +25,9 @@ from fastapi.logger import logger
 from fastapi.openapi.constants import METHODS_WITH_BODY
 from fastapi.openapi.utils import (
     _get_api_route_for_openapi,
-    _get_flat_fields_from_params,
+    _get_openapi_dependency_data,
     _get_openapi_operation_parameters,
+    _OpenAPIDependencyData,
     get_fields_from_routes,
     get_openapi_operation_metadata,
     get_openapi_operation_request_body,
@@ -206,8 +204,8 @@ def _convert_request_body_to_body_param(request_body: dict[str, Any], body_field
     return body_param
 
 
-def get_swagger2_security_definitions(
-    flat_dependant: Dependant,
+def _get_swagger2_security_definitions(
+    security_dependencies: list[tuple[Dependant, list[str]]],
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     oauth2_flows_keys_map = {
         "implicit": "implicit",
@@ -219,7 +217,7 @@ def get_swagger2_security_definitions(
     security_definitions = {}
     # Use a dict to merge scopes for same security scheme
     operation_security_dict: dict[str, list[str]] = {}
-    for security_dependency in _get_security_dependencies(dependant=flat_dependant):
+    for security_dependency, oauth_scopes in security_dependencies:
         security_scheme = _get_security_scheme(dependant=security_dependency)
         security_definition = jsonable_encoder(
             security_scheme.model,
@@ -256,7 +254,7 @@ def get_swagger2_security_definitions(
 
                 suffixed_name = f"{security_name}_{swagger2_flow_key}"
                 security_definitions[suffixed_name] = mapped_security
-                for scope in _get_oauth_scopes(dependant=security_dependency):
+                for scope in oauth_scopes:
                     if scope not in operation_security_dict.setdefault(suffixed_name, []):
                         operation_security_dict[suffixed_name].append(scope)
 
@@ -268,7 +266,7 @@ def get_swagger2_security_definitions(
         # Merge scopes for the same security scheme
         if security_name not in operation_security_dict:
             operation_security_dict[security_name] = []
-        for scope in _get_oauth_scopes(dependant=security_dependency):
+        for scope in oauth_scopes:
             if scope not in operation_security_dict[security_name]:
                 operation_security_dict[security_name].append(scope)
     operation_security = [{name: scopes} for name, scopes in operation_security_dict.items()]
@@ -297,24 +295,16 @@ def get_swagger2_path(
     route_response_media_type: str | None = current_response_class.media_type
 
     if route.include_in_schema:
-        flat_dependant = get_flat_dependant(route.dependant, skip_repeats=True)
-        all_route_params = [
-            field
-            for fields in (
-                flat_dependant.path_params,
-                flat_dependant.query_params,
-                flat_dependant.header_params,
-                flat_dependant.cookie_params,
-            )
-            for field in _get_flat_fields_from_params(fields)
-        ]
+        dependency_data: _OpenAPIDependencyData = _get_openapi_dependency_data(route.dependant)
         for method in route.methods:
             operation = get_openapi_operation_metadata(route=route, method=method, operation_ids=operation_ids)
 
             parameters: list[dict[str, Any]] = []
             all_parameters = {}
 
-            security_definitions, operation_security = get_swagger2_security_definitions(flat_dependant=flat_dependant)
+            security_definitions, operation_security = _get_swagger2_security_definitions(
+                security_dependencies=dependency_data.security_dependencies
+            )
 
             if operation_security:
                 operation.setdefault("security", []).extend(operation_security)
@@ -323,7 +313,7 @@ def get_swagger2_path(
                 security_schemes.update(security_definitions)
 
             operation_parameters = _get_openapi_operation_parameters(
-                flat_dependant=flat_dependant,
+                dependency_data=dependency_data,
                 model_name_map=model_name_map,
                 field_mapping=field_mapping,
                 separate_input_output_schemas=separate_input_output_schemas,
