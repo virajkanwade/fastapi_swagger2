@@ -21,4 +21,4 @@ set -x
 # Clean all test sessions to ensure fresh environments
 rm -rf .nox/test-*
 
-nox "$@"
+uv run nox "$@"
